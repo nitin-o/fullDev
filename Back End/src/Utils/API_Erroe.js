@@ -1,23 +1,22 @@
-export class ApiError extends Error{
+export class ApiError extends Error {
     constructor(
         statusCode,
-        message = "3333333333333333333",
-        error = [],
-        stack =""
-    ){
-        super(message)
-        this.data = null;
-        this.statusCode = statusCode ;
+        message = "An unexpected error occurred",
+        error = null,
+        stack = ""
+    ) {
+        super(message);
+        this.name = "ApiError";
+        this.statusCode = statusCode;
+        this.message = message;
         this.error = error;
-        this.stack =stack;  
-        this.message = message
-        this.success = false
+        this.success = false;
+        this.data = null;
 
         if (stack) {
             this.stack = stack;
-        }else{
-            Error.captureStackTrace(this ,this.constructor)
+        } else {
+            Error.captureStackTrace(this, this.constructor);
         }
-
     }
 }
