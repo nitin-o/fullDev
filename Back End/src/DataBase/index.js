@@ -1,24 +1,30 @@
 import mongoose from "mongoose";
-import { DATABASE_NAME,DATABASE_URL} from "../constants.js"
+import { DATABASE_NAME, DATABASE_URL, DATABASE_URL1 } from "../constants.js";
 
-const DataBase_Connection = async() =>{
-    
+const DataBase_Connection = async () => {
+    try {
+        console.log(`🔹 Connecting to: ${DATABASE_URL}/${DATABASE_NAME}`);
 
-try {
-    const connectionInstructions = await mongoose.connect(`${DATABASE_URL}/${DATABASE_NAME}`)    
-    console.log(`Nitin in log :- ****************** ${connectionInstructions.connections[0].host} **********************/DataBase/index.js`);
-    
-    
-} catch (error) {
-    console.log(error);
-    
-     console.log("DataBase_Connection feilde");
-     console.error("process exit the app is crashed by :- process.exit(1) ");
-     
-     process.exit(1)
-    
-}
+        const connection = await mongoose.connect(`${DATABASE_URL}/${DATABASE_NAME}`);
+        console.log(`✅ MongoDB Connected: ${connection.connection.host}`);
 
-}
+    } catch (error) {
+        console.error("❌ MongoDB Atlas Connection Failed:", error.message);
 
-export default DataBase_Connection 
+        // Retry with local MongoDB
+        console.log("🔄 Retrying with local MongoDB...");
+        try {
+            console.log(`🔹 Connecting to: ${DATABASE_URL1}/${DATABASE_NAME}`);
+
+            const connection = await mongoose.connect(`${DATABASE_URL1}/${DATABASE_NAME}`);
+            console.log(`✅ MongoDB Connected: ${connection.connection.host}`);
+
+        } catch (error) {
+            console.error("❌ Local MongoDB Connection Failed:", error.message);
+            console.error("❌ Both database connections failed! Exiting...");
+            process.exit(1);
+        }
+    }
+};
+
+export default DataBase_Connection;

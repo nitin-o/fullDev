@@ -14,7 +14,7 @@ const userSchema = new Schema({
         unique :true
         },
     password: { type: String, required: true },
-    profile_Image: { type: String, required: false },
+    avatar: { type: String, required: false },
     covar_Image: { type: String, required: false },
     gender: { type: String, required: false },
     DOB : { type: String, required: false },

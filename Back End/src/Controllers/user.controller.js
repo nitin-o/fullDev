@@ -1,38 +1,72 @@
 import { User } from "../models/user.models.js";
 import { ApiError } from "../Utils/API_Erroe.js";
+import { asyncHandler1 } from "../Utils/asyncHandler.js";
 import { uploadFile } from "../Utils/CloudinaryServise.js";
-//import cloudinary from "cloudinary"
 
-// cloudinary.v2.config({
-// cloud_name: 'derajrbyc',
-// api_key: '237221189833634',
-// api_secret: '_miUAlKtDtEI4rdX6HISTVAfkuk',
-// secure: true,
-// });
         
 
 
-const register = async (req, res, next) => {
+const register =asyncHandler1( async (req, res, next) => {
     try {
-        const avatarImage = req?.files?.avatar?.[0]?.path; // Safer optional chaining
-        console.log("Uploaded File Path:", avatarImage);
+         const {firstName, lastName,email ,password,gender,DOB} = req.body
 
+         if (!firstName) {
+            throw new ApiError (403 , "fields are required. Please provide firstName")
+         }
+         if (!lastName) {
+            throw new ApiError (401 , "fields are required. Please provide lastName")
+         }
+         if (!email) {
+            throw new ApiError (401 , "fields are required. Please provide email")
+         }
+         if (!password) {
+            throw new ApiError (401 , "fields are required. Please provide password")
+         }
 
-        const avatar = await uploadFile(avatarImage)
+        //  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        //  if (!emailRegex.test(email)) {
+        //      throw new ApiError(400, "Invalid email format");
+        //  }
 
-
-            console.log(avatar.secure_url);
-            
+        if (await User.findOne({email})) {
+            throw new ApiError(400, "email is alradi exist");
+        }
         
-        // User.create({})
-        res.json({
+         if (password.length < 6) {
+             throw new ApiError(400, "Password must be at least 6 characters");
+         }
+
+
+        
+        
+        const uploadedImage = await uploadFile(req.files.avatar[0].path);
+        const avatarUrl = uploadedImage.secure_url || req.files.avatar[0].path;
+       
+       
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            password, // Ideally, hash password before storing
+            gender,
+            DOB,
+            avatar: avatarUrl,
+        });
+
+        res.status(201).json({
+            success: true,
             message: "User registered successfully!",
-            data: req.files // Send only necessary data
+            data: user
         });
 
     } catch (error) {
         next(error); // Pass the error to Express error handler
     }
-};
+});
 
-export { register };
+const login = asyncHandler1 (async (req, res, next)=>{
+    console.log("dee");
+    
+})
+
+export { register , login };
