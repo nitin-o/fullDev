@@ -56,18 +56,18 @@ const userSchema = new Schema({
 userSchema.pre("save",async function (next) {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password,10)
-        console.log(this.password);
+        console.log(bcrypt);
     }
     next()
 })
 
-userSchema.method.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare.compare(password , this.password)
+userSchema.methods.isPasswordCorrect = async function (password) {
+     return await bcrypt.compare(password , this.password)
 }
 
-//
+// ganerateAccessToken
 
-userSchema.method.ganerateAccessToken =  function () {
+userSchema.methods.ganerateAccessToken =  function () {
     return jwt.sign(
         {
             _id : this._id,
@@ -77,17 +77,15 @@ userSchema.method.ganerateAccessToken =  function () {
         },
         ACCESS_TOKEN,
         {
-            expiresIn : {ACCESS_TOKEN_EXPIRY}
+            expiresIn : ACCESS_TOKEN_EXPIRY
         }
     )
 }
 
 
+// ganerateRefreshToken
 
-//  ganerateRefreshToken
-
-
-userSchema.method.ganerateRefreshToken =  function () {
+userSchema.methods.ganerateRefreshToken =  function () {
     return jwt.sign(
         {
             _id : this._id,
@@ -97,9 +95,8 @@ userSchema.method.ganerateRefreshToken =  function () {
         },
         REFRESH_TOKEN,
         {
-            expiresIn : {REFRESH_TOKEN_EXPIRY}
+            expiresIn : REFRESH_TOKEN_EXPIRY
         }
     )
 }
-
 export const User = mongoose.model("User",userSchema)

@@ -3,17 +3,12 @@ import fs from "fs"
 
 
 const uploadDir = "./public/temp";
-
-// ✅ Ensure upload directory exists
-// if (!fs.existsSync(uploadDir)) {
-//     fs.mkdirSync(uploadDir, { recursive: true });
-// }
-
-
-
-const storage = multer.diskStorage({
     
-    destination: function (req, file, cb) {
+    const storage = multer.diskStorage({
+        
+        destination: function (req, file, cb) {
+
+        // ✅ Ensure upload directory exists
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -26,6 +21,7 @@ const storage = multer.diskStorage({
 });
 
 
+export const body_form = multer()
 
 
 

@@ -40,7 +40,6 @@ const uploadFile = async (localePath) => {
         
         
     } catch (error) {
-        console.log("333333333333333333333333333333333333333333333333333333");
         return localePath
 
     }
