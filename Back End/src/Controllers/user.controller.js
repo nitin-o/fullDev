@@ -37,11 +37,15 @@ const register =asyncHandler1( async (req, res, next) => {
          }
 
 
+         let avatarUrl =""
+        if (req.files?.avatar?.length > 0) {
+            
+             const uploadedImage = await uploadFile(req?.files?.avatar[0]?.path);
+              avatarUrl = uploadedImage?.secure_url || req?.files?.avatar[0]?.path;
+        }
         
-        
-        const uploadedImage = await uploadFile(req.files.avatar[0].path);
-        const avatarUrl = uploadedImage.secure_url || req.files.avatar[0].path;
-       
+         console.log("avatarUrl",avatarUrl);
+         
        
         const user = await User.create({
             firstName,
@@ -50,7 +54,7 @@ const register =asyncHandler1( async (req, res, next) => {
             password, // Ideally, hash password before storing
             gender,
             DOB,
-            avatar: avatarUrl,
+            avatar: avatarUrl
         });
 
         res.status(201).json({

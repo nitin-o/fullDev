@@ -6,6 +6,10 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN
 const CLOUD_NAME = process.env.CLOUD_NAME
 const CLOUD_API_KEY = process.env.API_KEY
 const CLOUD_API_SECRET = process.env.API_SECRET
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN
+const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN_EXPIRY
+const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN
 
 export {
     PORT,
@@ -16,5 +20,9 @@ export {
     CLOUD_NAME,
     CLOUD_API_KEY,
     CLOUD_API_SECRET,
+    ACCESS_TOKEN,
+    ACCESS_TOKEN_EXPIRY,
+    REFRESH_TOKEN,
+    REFRESH_TOKEN_EXPIRY
  
 }

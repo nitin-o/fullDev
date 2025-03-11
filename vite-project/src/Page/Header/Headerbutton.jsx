@@ -7,7 +7,7 @@ const Headerbutton = () => {
 
     return (
         <div className='flex gap-2'>
-            {false? (<>
+            {true? (<>
                 <ButtonComponat text='Log In' type='button' onClick={(()=>{navigate("/Login")})}/>
                 <ButtonComponat text='Sign Up' type='button' onClick={(()=>{navigate("/Registrar")})}/> 
             </>):
