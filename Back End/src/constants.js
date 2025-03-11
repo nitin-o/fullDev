@@ -8,8 +8,8 @@ const CLOUD_API_KEY = process.env.API_KEY
 const CLOUD_API_SECRET = process.env.API_SECRET
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN
 const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN_EXPIRY
-const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN
+const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN_EXPIRY
 
 export {
     PORT,

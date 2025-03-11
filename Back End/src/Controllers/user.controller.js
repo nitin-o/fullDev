@@ -1,23 +1,26 @@
 import { User } from "../models/user.models.js";
 import { ApiError } from "../Utils/API_Erroe.js";
+import { ApiResponse } from "../Utils/Api_Response.js";
 import { asyncHandler1 } from "../Utils/asyncHandler.js";
 import { uploadFile } from "../Utils/CloudinaryServise.js";
 
 
 const ganreateRefreshTokenAndAccessToken = async(userId)=>{
     try {
-        const user = User.findOne({userId})
+        const user = await User.findById(userId)
 
-        console.log(user);
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
         
-
         const accessToken = user.ganerateAccessToken();
         const refreshToken = user.ganerateRefreshToken();
+       
+        user.refresh_Token = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
-        user.refreshToken = refreshToken;
-        user.save()
 
-         return { accessToken , refreshToken }
+        return { accessToken , refreshToken }
 
     } catch (error) {
         throw new ApiError(500 , ("ganreateRefreshTokenAndAccessToken" ,error))
@@ -116,15 +119,42 @@ const login = asyncHandler1 (async (req, res, next)=>{
         if (!PasswordValid) {
             throw new ApiError ( 404 , "Password Valid false")
         }
+
+      
+        
+        const {accessToken ,refreshToken} = await ganreateRefreshTokenAndAccessToken(user._id)
+
+        const loginUser = await User.findById(user._id).select("-password -refresh_Token")
+
+
+
+        const options = {
+            httpOnly : true ,
+            secure : true
+        }
+
+        // const options = {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === "production", // Secure in production
+        //     sameSite: "strict",
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        // };
         
         
     
    
-       res.status(201).json({
-           success: true,
-           message: "User login successfully!",
-           data: req.body
-       });
+       res.status(201)
+       .cookie("accessToken" , accessToken , options)
+       .cookie("refreshToken" , refreshToken , options)
+       .json(
+        new ApiResponse(
+            200,
+            {
+                loginUser ,accessToken ,refreshToken
+            },
+            "user Login successful"
+        )
+       );
  } catch (error) {
     throw new ApiError (500 , error)
     
@@ -132,4 +162,31 @@ const login = asyncHandler1 (async (req, res, next)=>{
     
 })
 
-export { register , login };
+const logout = asyncHandler1 (async(req, res, next)=>{
+
+    console.log(req?.user?._id);
+
+    await User.findByIdAndUpdate(
+        req?.user?._id,
+        {$set:{refresh_Token: undefined}},
+        {new:true}
+    )
+    
+    const options = {
+        httpOnly : true ,
+        secure : true
+    }
+
+
+    res.status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(
+        200,
+        {},
+        "user Logout successful"
+    ))
+
+
+})
+export { register , login , logout };

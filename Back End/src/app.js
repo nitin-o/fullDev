@@ -2,7 +2,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import multer from "multer";
-import {CORS_ORIGIN} from "./constants.js"
+import {CORS_ORIGIN,REFRESH_TOKEN_EXPIRY} from "./constants.js"
+
+console.log(REFRESH_TOKEN_EXPIRY);
+
 
 const app = express();
 

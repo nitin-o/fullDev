@@ -85,7 +85,9 @@ userSchema.methods.ganerateAccessToken =  function () {
 
 // ganerateRefreshToken
 
+
 userSchema.methods.ganerateRefreshToken =  function () {
+
     return jwt.sign(
         {
             _id : this._id,
