@@ -3,6 +3,8 @@ import { ApiError } from "../Utils/API_Erroe.js";
 import { ApiResponse } from "../Utils/Api_Response.js";
 import { asyncHandler1 } from "../Utils/asyncHandler.js";
 import { uploadFile } from "../Utils/CloudinaryServise.js";
+import jwt from "jsonwebtoken";
+import { REFRESH_TOKEN } from "../constants.js";
 
 
 const ganreateRefreshTokenAndAccessToken = async(userId)=>{
@@ -164,7 +166,7 @@ const login = asyncHandler1 (async (req, res, next)=>{
 
 const logout = asyncHandler1 (async(req, res, next)=>{
 
-    console.log(req?.user?._id);
+    // console.log(req?.user?._id);
 
     await User.findByIdAndUpdate(
         req?.user?._id,
@@ -183,10 +185,53 @@ const logout = asyncHandler1 (async(req, res, next)=>{
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(
         200,
-        {},
         "user Logout successful"
     ))
 
 
 })
-export { register , login , logout };
+
+
+const refreshAccessToken = asyncHandler1(async (req, res, next)=>{
+
+    const token = req?.cookies?.refreshToken || req.header("Authorization")?.replace("Bearer ", "").trim();
+
+    if (!token) {
+         new ApiError(401,"Unauthorized access. Token is missing.")
+        }
+        const decodedToken = jwt.verify(token, REFRESH_TOKEN);
+
+        const user = await User.findById(decodedToken?._id).select("-password");
+        
+        if (!user) {
+            throw new ApiError(401, "Invalid access token. User not found.");
+        }
+
+        if (user.refresh_Token !== token) {
+            throw new ApiError(401, "piz login");
+        }
+
+
+        const {refreshToken ,accessToken } =await ganreateRefreshTokenAndAccessToken(user._id)
+        
+        const options = {
+            httpOnly : true ,
+            secure : true
+        }
+
+
+        res.status(201)
+       .cookie("accessToken" , accessToken , options)
+       .cookie("refreshToken" , refreshToken , options)
+       .json(
+        new ApiResponse(
+            200,
+            {
+                accessToken ,refreshToken
+            },
+            "user Login successful"
+        )
+       );
+    
+} )
+export { register , login , logout ,refreshAccessToken };
