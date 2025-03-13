@@ -18,8 +18,7 @@ const ganreateRefreshTokenAndAccessToken = async(userId)=>{
         const accessToken = user.ganerateAccessToken();
         const refreshToken = user.ganerateRefreshToken();
        
-        user.refresh_Token = refreshToken;
-        await user.save({ validateBeforeSave: false });
+        
 
 
         return { accessToken , refreshToken }
@@ -33,19 +32,32 @@ const ganreateRefreshTokenAndAccessToken = async(userId)=>{
 
 const register =asyncHandler1( async (req, res, next) => {
     try {
+        
          const {firstName, lastName,email ,password,gender,DOB} = req.body
 
          if (!firstName) {
-            throw new ApiError (403 , "fields are required. Please provide firstName")
+            return res.status(400).json({
+                success: false,
+                message: "firstName fields are required!",
+            });
          }
          if (!lastName) {
-            throw new ApiError (401 , "fields are required. Please provide lastName")
+            return res.status(400).json({
+                success: false,
+                message: "lastName fields are required!",
+            });
          }
          if (!email) {
-            throw new ApiError (401 , "fields are required. Please provide email")
+            return res.status(400).json({
+                success: false,
+                message: "email fields are required!",
+            });
          }
          if (!password) {
-            throw new ApiError (401 , "fields are required. Please provide password")
+            return res.status(400).json({
+                success: false,
+                message: "password fields are required!",
+            });
          }
 
         //  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,13 +65,20 @@ const register =asyncHandler1( async (req, res, next) => {
         //      throw new ApiError(400, "Invalid email format");
         //  }
 
+        if (password.length < 6) {
+           return res.status(401).json({
+               success: false,
+               message: "Password must be at least 6 characters",
+           });
+        }
+
         if (await User.findOne({email})) {
-            throw new ApiError(400, "email is alradi exist");
+            return res.status(402).json({
+                success: false,
+                message: "email is alradi exist",
+            });
         }
         
-         if (password.length < 6) {
-             throw new ApiError(400, "Password must be at least 6 characters");
-         }
 
 
          let avatarUrl =""
@@ -99,10 +118,16 @@ const login = asyncHandler1 (async (req, res, next)=>{
        const {email , password } = req.body
        
        if (!email) {
-           throw new ApiError (401 , "fields are required. Please provide email")
+        return res.status(400).json({
+            success: false,
+            message: "email fields are required!",
+        });
         }
         if (!password) {
-           throw new ApiError (401 , "fields are required. Please provide password")
+            return res.status(400).json({
+                success: false,
+                message: "email and userName is not exist",
+            });
         }
    
        
@@ -111,7 +136,10 @@ const login = asyncHandler1 (async (req, res, next)=>{
         // User.findOne({ $or : [ { email } , { userName } ] } )
    
         if (!user) {
-           throw new ApiError ( 404 , "email and userName is not exist")
+            return res.status(400).json({
+                success: false,
+                message: "email and userName is not exist",
+            });
         }
    
    
@@ -119,7 +147,11 @@ const login = asyncHandler1 (async (req, res, next)=>{
         const PasswordValid = await user.isPasswordCorrect(password);
         
         if (!PasswordValid) {
-            throw new ApiError ( 404 , "Password Valid false")
+            return res.status(400).json({
+                success: false,
+                message: "Password Valid false",
+            });
+           
         }
 
       
@@ -131,32 +163,20 @@ const login = asyncHandler1 (async (req, res, next)=>{
 
 
         const options = {
-            httpOnly : true ,
-            secure : true
-        }
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        };
 
-        // const options = {
-        //     httpOnly: true,
-        //     secure: process.env.NODE_ENV === "production", // Secure in production
-        //     sameSite: "strict",
-        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        // };
-        
-        
-    
-   
-       res.status(201)
-       .cookie("accessToken" , accessToken , options)
-       .cookie("refreshToken" , refreshToken , options)
-       .json(
-        new ApiResponse(
-            200,
-            {
-                loginUser ,accessToken ,refreshToken
-            },
-            "user Login successful"
-        )
-       );
+      
+        res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(200, { loginUser }, "User login successful")
+        );
+
+
  } catch (error) {
     throw new ApiError (500 , error)
     
@@ -175,9 +195,10 @@ const logout = asyncHandler1 (async(req, res, next)=>{
     )
     
     const options = {
-        httpOnly : true ,
-        secure : true
-    }
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+    };
 
 
     res.status(200)
@@ -193,12 +214,15 @@ const logout = asyncHandler1 (async(req, res, next)=>{
 
 
 const refreshAccessToken = asyncHandler1(async (req, res, next)=>{
+    
 
     const token = req?.cookies?.refreshToken || req.header("Authorization")?.replace("Bearer ", "").trim();
 
     if (!token) {
          new ApiError(401,"Unauthorized access. Token is missing.")
         }
+
+        
         const decodedToken = jwt.verify(token, REFRESH_TOKEN);
 
         const user = await User.findById(decodedToken?._id).select("-password");
@@ -234,4 +258,23 @@ const refreshAccessToken = asyncHandler1(async (req, res, next)=>{
        );
     
 } )
-export { register , login , logout ,refreshAccessToken };
+
+const isLogin = asyncHandler1(async(req,res)=>{
+    
+
+       const options = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        };
+
+    res.status(200)
+        .cookie("accessToken", res.accessToken, options)
+        .json(
+            {data:req.user}
+        );
+})
+
+
+
+export { register , login , logout ,refreshAccessToken ,isLogin };

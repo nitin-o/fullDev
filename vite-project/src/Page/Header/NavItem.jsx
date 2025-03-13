@@ -1,7 +1,10 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router';
 
 const NavItem = ({}) => {
+    const authStatus = useSelector((state) => state.auth.status);
+
     const navItem = [
         {
             name :"Home",
@@ -10,11 +13,11 @@ const NavItem = ({}) => {
         },{
             name :"Admin",
             url : "/Admin",
-            isActive : true
+            isActive : authStatus
         },{
             name :"Dashboard",
             url : "/Dashboard",
-            isActive : true
+            isActive : authStatus
         }
     ]
     return (

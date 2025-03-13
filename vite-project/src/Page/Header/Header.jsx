@@ -6,7 +6,10 @@ import NavItem from './NavItem';
 
 
 
+
 const Header = () => {
+    
+
     return (
             <div className='flex flex-col justify-evenly '>
                 <div className='bg-gray-900 border-1  border-gray-700 flex justify-between h-15 items-center '>

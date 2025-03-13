@@ -3,7 +3,9 @@ import { ButtonComponat, InputComponat } from "../componant/index.js"; // ✅ Fi
 import { useForm } from 'react-hook-form';
 import userService from '../../DataBase/config.js'; // ✅ Ensure this is the correct path
 
+
 const Register = () => {
+
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data) => {
@@ -13,9 +15,22 @@ const Register = () => {
         }
 
         try {
+
+
             
             const respons =await userService.registerUser(data)
-            console.log(respons);
+            
+            if (!respons.success) {
+                console.log(respons.message);
+                return 
+                
+            }
+
+            if (respons.success) {
+                console.log(respons.message);
+                return 
+            }
+            
             
         } catch (error) {
             console.error("Registration Failed:", error);

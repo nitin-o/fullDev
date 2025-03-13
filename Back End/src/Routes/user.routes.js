@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { upload , body_form } from "../Middleware/FileUpload.Middleware.js"; // Ensure correct path
 // import { uploadResult } from "../Utils/CloudinaryServise.js";
-import { register, login, logout,refreshAccessToken } from "../Controllers/user.controller.js";
+import { register, login, logout ,isLogin } from "../Controllers/user.controller.js";
 import { verifyJWT } from "../Middleware/auth.middelware.js";
 
 const userRouter = Router();
@@ -20,7 +20,7 @@ userRouter.route("/register").post(
 
 userRouter.route("/login").post(body_form.any() ,login)
 userRouter.route("/logout").post(verifyJWT,logout)
-userRouter.route("/Refresh_Token").post(refreshAccessToken)
+userRouter.route("/isLogin").post(verifyJWT ,isLogin)
 export default userRouter;
 
 

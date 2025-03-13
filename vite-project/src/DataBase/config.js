@@ -7,52 +7,96 @@ class UserService {
     }
 
     async registerUser(userData) {
-        const url = `${this.baseUrl}/user/Ragister`;
+
+        const {firstName,lastName,email,password,gender,DOB} =userData
+        const url = `${this.baseUrl}/user/register`;
+
+        const data = await fetch(url,{
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                firstName,
+                lastName,
+                email,
+                password,
+                gender,
+                DOB,
+            })
+
+        }).then(async Response=> Response.json())
+
+        return data
         
-        
+    }
+
+    async loginUser(userData) {
         try {
-            const response = await fetch(url, {
+            const { email, password } = userData;
+            const url = `${this.baseUrl}/user/login`;
+    
+            const response = await fetch("http://localhost:3000/user/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(userData)
+                headers: { "Content-Type": "application/json" },
+                 credentials: "include",  // Required for cookies
+                body: JSON.stringify({ email, password })
             });
             
-            console.log(response);
-             console.log(userData);
-            
-
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                throw new Error(`Login failed: ${response.statusText}`);
             }
-
-            const result = await response.json();
-            return result;
+    
+            const data = await response.json();
+            return data;
         } catch (error) {
-            console.error("Error registering user:", error);
-            throw error;
+            console.error("Error during login:", error);
+            return { success: false, message: error.message };
         }
+    }
+    
+
+    async logoutUser() {
+        try {
+            const url = `${this.baseUrl}/user/logout`;
+    
+            const response = await fetch(url, {
+                method: "POST",
+                credentials: "include", // Ensure cookies are sent with request
+                headers: { "Content-Type": "application/json" },
+            });
+            
+            
+            const data = await response.json();
+            if (!data?.success) {
+                return data.message
+            }
+            return data.data;
+        } catch (error) {
+            console.error("Error during logout:", error);
+            return { success: false, message: error.message };
+        }
+    }
+
+  
+
+    async isLogin (){
+        const url = `${this.baseUrl}/user/isLogin`;
+    
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "include", // Ensure cookies are sent with request
+            headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        if (data?.success== false) {
+            return data.success
+        }
+        
+        return data.data
+        
     }
 }
 
-// ✅ Example Usage:
-const userService = new UserService("http://localhost:8000");
+const userService = new UserService();
 
 export default userService
 
-// const userData = {
-//     name: "John Doe",
-//     email: "johndoe@example.com",
-//     password: "securepassword",
-//     profile_Image: "https://example.com/profile.jpg",
-//     covar_Image: "https://example.com/cover.jpg",
-//     gender: "Male",
-//     DOB: "2000-01-01",
-//     refresh_Token: "your-refresh-token",
-//     access_Token: "your-access-token"
-// };
-
-// userService.registerUser(userData)
-//     .then(response => console.log("User Registered:", response))
-//     .catch(error => console.error("Registration Failed:", error));
