@@ -6,26 +6,19 @@ class UserService {
         this.baseUrl = DATABASE_URL;
     }
 
-    async registerUser(userData) {
+    async registerUser(formData) {
 
-        const {firstName,lastName,email,password,gender,DOB} =userData
-        const url = `${this.baseUrl}/user/register`;
-
-        const data = await fetch(url,{
-            method: "POST", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                firstName,
-                lastName,
-                email,
-                password,
-                gender,
-                DOB,
-            })
-
-        }).then(async Response=> Response.json())
-
-        return data
+        try {
+            const response = await fetch(`${this.baseUrl}/user/register`, {
+                method: "POST",
+                body: formData,
+            });
+    
+            const result = await response.json();
+            console.log("Response:", result);
+        } catch (error) {
+            console.error("Error:", error);
+        }
         
     }
 

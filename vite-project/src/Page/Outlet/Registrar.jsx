@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ButtonComponat, InputComponat } from "../componant/index.js"; // ✅ Fixed typo in imports
 import { useForm } from 'react-hook-form';
 import userService from '../../DataBase/config.js'; // ✅ Ensure this is the correct path
@@ -6,37 +6,45 @@ import userService from '../../DataBase/config.js'; // ✅ Ensure this is the co
 
 const Register = () => {
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const [preview, setPreview] = useState(null);
 
     const onSubmit = async (data) => {
-        if (data.password == data.confirmPassword) {
-            alert("Confirm Password does not match");
-            return;
+        const formData = new FormData();
+        formData.append("firstName", data.firstName);
+        formData.append("lastName", data.lastName);
+        formData.append("email", data.email);
+        formData.append("password", data.password);
+    
+        // ✅ Fix File Upload Handling
+        const selectedFile = watch("avatar"); // Retrieve file from state
+        if (selectedFile && selectedFile.length > 0) {
+            console.log("Adding File:", selectedFile[0]); // Debugging
+            formData.append("avatar", selectedFile[0]); 
+        } else {
+            console.warn("No file selected");
         }
-
+    
         try {
-
-
-            
-            const respons =await userService.registerUser(data)
-            
-            if (!respons.success) {
-                console.log(respons.message);
-                return 
-                
-            }
-
-            if (respons.success) {
-                console.log(respons.message);
-                return 
-            }
-            
-            
+            const response = await userService.registerUser(formData)
+    
+            console.log("Response:", response);
         } catch (error) {
-            console.error("Registration Failed:", error);
-            alert("Registration failed. Please try again.");
+            console.error("Error:", error);
         }
     };
+    
+    
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            console.log("Selected File:", file); // Debugging
+            setValue("avatar", e.target.files);
+            setPreview(URL.createObjectURL(file));
+        }
+    };
+
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col justify-evenly h-full'>

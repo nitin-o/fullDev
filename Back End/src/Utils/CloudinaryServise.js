@@ -30,7 +30,7 @@ const uploadFile = async (localePath) => {
         const uploadResult = await cloudinary.uploader.upload(localePath,{
             resource_type :"auto"
         })
-        console.log(uploadFile);
+        
         
        fs.unlinkSync(localePath)
         
